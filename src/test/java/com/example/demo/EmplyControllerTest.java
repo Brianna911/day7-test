@@ -1,0 +1,93 @@
+package com.example.demo;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+public class EmplyControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private Employee testEmployee;
+
+    @BeforeEach
+    void setup() {
+        testEmployee = new Employee();
+        testEmployee.setName("John Smith");
+        testEmployee.setAge(30);
+        testEmployee.setGender("MALE");
+        testEmployee.setSalary(60000);
+    }
+
+    @Test
+    public void testCreateEmployee1() throws Exception {
+        mockMvc.perform(post("/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testEmployee)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
+    public void testCreateEmployee2AndReturnList() throws Exception {
+        mockMvc.perform(post("/employees/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testEmployee)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.employees[0].name").value("John Smith"));
+    }
+
+    @Test
+    public void testGetEmployeeById() throws Exception {
+        mockMvc.perform(post("/employees/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testEmployee)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/employees/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("John Smith"))
+                .andExpect(jsonPath("$.age").value(30))
+                .andExpect(jsonPath("$.gender").value("MALE"))
+                .andExpect(jsonPath("$.salary").value(60000));
+    }
+
+    @Test
+    public void testQueryEmployeesByGender() throws Exception {
+        Employee femaleEmployee = new Employee();
+        femaleEmployee.setName("Jane Doe");
+        femaleEmployee.setAge(28);
+        femaleEmployee.setGender("FEMALE");
+        femaleEmployee.setSalary(55000);
+
+        mockMvc.perform(post("/employees/2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testEmployee)));
+
+        mockMvc.perform(post("/employees/2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(femaleEmployee)));
+
+        mockMvc.perform(get("/employees/gender/MALE")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("John Smith"));
+    }
+}
