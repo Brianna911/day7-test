@@ -62,6 +62,16 @@ public class EmplyController {
                 .toList();
         return ResponseEntity.ok(filtered);
     }
+    // 根据 ID 删除员工
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable long id) {
+        boolean removed = employees.removeIf(e -> e.getId() == id);
+        if (removed) {
+            return ResponseEntity.noContent().build(); // 删除成功，返回 204
+        } else {
+            return ResponseEntity.notFound().build(); // 没找到该员工，返回 404
+        }
+    }
 
 
 }

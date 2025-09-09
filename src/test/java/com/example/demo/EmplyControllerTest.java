@@ -1,5 +1,4 @@
 package com.example.demo;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,9 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -90,4 +87,22 @@ public class EmplyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("John Smith"));
     }
+
+    @Test
+    public void testDeleteEmployeeById() throws Exception {
+        // 创建员工
+        mockMvc.perform(post("/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testEmployee)))
+                .andExpect(status().isCreated());
+
+        // 删除员工
+        mockMvc.perform(delete("/employees/delete/1"))
+                .andExpect(status().isNoContent());
+
+        // 再次尝试获取该员工，验证是否已删除
+        mockMvc.perform(get("/employees/1"))
+                .andExpect(status().isNotFound());
+    }
+
 }
