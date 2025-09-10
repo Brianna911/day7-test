@@ -1,4 +1,5 @@
-package com.example.demo;
+package com.example.demo.controller;
+import com.example.demo.Company;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,7 +14,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class EmplyControllerTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+public class EmployeeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,12 +44,12 @@ public class EmplyControllerTest {
     }
 
     @Test
-    public void testCreateEmployee2AndReturnList() throws Exception {
-        mockMvc.perform(post("/employees/2")
+    public void testCreateEmployeeAndReturn() throws Exception {
+        mockMvc.perform(post("/employees")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testEmployee)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.employees[0].name").value("John Smith"));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("John Smith"));
     }
 
     @Test
@@ -70,7 +72,7 @@ public class EmplyControllerTest {
     public void testQueryEmployeesByGender() throws Exception {
         Employee femaleEmployee = new Employee();
         femaleEmployee.setName("Jane Doe");
-        femaleEmployee.setAge(28);
+        femaleEmployee.setAge(30);
         femaleEmployee.setGender("FEMALE");
         femaleEmployee.setSalary(55000);
 
@@ -103,6 +105,28 @@ public class EmplyControllerTest {
         // 再次尝试获取该员工，验证是否已删除
         mockMvc.perform(get("/employees/1"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetEmployeesWithPagination() throws Exception {
+        // 创建多个员工
+        for (int i = 1; i <= 10; i++) {
+            Employee employee = new Employee();
+            employee.setName("Employee " + i);
+            employee.setId(i);
+
+            mockMvc.perform(post("/employees")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(employee)))
+                    .andExpect(status().isCreated());
+        }
+
+        // 分页查询第一页，大小为5
+        mockMvc.perform(get("/employees/employees?page=1&size=5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.size").value(5))
+                .andExpect(jsonPath("$.employees.length()").value(5));
     }
 
 }
