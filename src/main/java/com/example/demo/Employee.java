@@ -6,6 +6,7 @@ public class Employee {
     private double salary;
     private int id;
     private String gender;
+    boolean active;
     public Employee() {
         super();
     }
@@ -48,5 +49,12 @@ public class Employee {
     }
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean b) {
     }
 }

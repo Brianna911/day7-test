@@ -16,15 +16,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class EmployeeControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     private Employee testEmployee;
-
     @BeforeEach
     void setup() {
         testEmployee = new Employee();
@@ -32,6 +28,8 @@ public class EmployeeControllerTest {
         testEmployee.setAge(30);
         testEmployee.setGender("MALE");
         testEmployee.setSalary(60000);
+        testEmployee.setActive(true);
+        testEmployee.setId(456);
     }
 
     @Test

@@ -73,7 +73,6 @@ public class CompanyController {
         }
         return ResponseEntity.notFound().build(); // 没找到该公司
     }
-
         // 根据 ID 删除公司
         @DeleteMapping("/delete/{id}")
         public ResponseEntity<Void> deleteCompany(@PathVariable long id) {

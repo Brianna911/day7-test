@@ -1,7 +1,10 @@
 package com.example.demo.service;
-
 import com.example.demo.Employee;
+import com.example.demo.exception.EmployeeInactiveException;
+import com.example.demo.exception.EmployeeNotFoundException;
+import com.example.demo.exception.InvalidEmployeeException;
 import com.example.demo.repository.EmployeeRepository;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +17,9 @@ import java.util.Map;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import com.example.demo.exception.EmployeeNotFoundException;
+import com.example.demo.exception.InvalidEmployeeException;
+import com.example.demo.exception.EmployeeInactiveException;
 
 @ExtendWith(MockitoExtension.class)
 public class EmployeeServiceTest {
@@ -90,15 +96,6 @@ public void testGetEmployeeFound() {
 }
 
 @Test
-public void testGetEmployeeNotFound() {
-    when(employeeRepository.findById(99)).thenReturn(Optional.empty());
-
-    ResponseEntity<Employee> response = employeeService.getEmployee(99);
-
-    assertEquals(404, response.getStatusCodeValue());
-}
-
-@Test
 public void testQueryEmployeesByGender() {
     Employee e1 = new Employee();
     e1.setName("Tom");
@@ -130,14 +127,18 @@ public void testDeleteEmployeeSuccess() {
     assertEquals(204, response.getStatusCodeValue());
 }
 
-@Test
-public void testDeleteEmployeeNotFound() {
-    when(employeeRepository.deleteById(99)).thenReturn(false);
 
-    ResponseEntity<Void> response = employeeService.deleteEmployee(99);
+    @Test
+    public void testDeleteEmployeeNotFound() {
+        when(employeeRepository.deleteById(99)).thenReturn(false);
 
-    assertEquals(404, response.getStatusCodeValue());
-}
+        EmployeeNotFoundException exception = assertThrows(EmployeeNotFoundException.class, () -> {
+            employeeService.deleteEmployee(99);
+        });
+
+        assertEquals("Employee with ID 99 not found.", exception.getMessage());
+    }
+
 
 @Test
 public void testGetEmployeesWithPagination() {
@@ -158,4 +159,101 @@ public void testGetEmployeesWithPagination() {
     assertEquals(5, ((List<?>) response.getBody().get("employees")).size());
     assertEquals(10, response.getBody().get("total"));
 }
+
+
+    @Nested
+    @ExtendWith(MockitoExtension.class)
+    class EmployeeServiceExceptionTest {
+
+        @InjectMocks
+        private EmployeeService employeeService;
+
+        @Mock
+        private EmployeeRepository employeeRepository;
+
+        @Test
+        public void testCreateEmployee_InvalidAgeTooYoung() {
+            Employee input = new Employee();
+            input.setAge(17);
+            input.setSalary(30000);
+
+            InvalidEmployeeException ex = assertThrows(InvalidEmployeeException.class, () -> {
+                employeeService.createEmployee(input);
+            });
+
+            assertEquals("Employee age must be between 18 and 65.", ex.getMessage());
+        }
+
+        @Test
+        public void testCreateEmployee_InvalidAgeTooOld() {
+            Employee input = new Employee();
+            input.setAge(70);
+            input.setSalary(30000);
+
+            assertThrows(InvalidEmployeeException.class, () -> {
+                employeeService.createEmployee(input);
+            });
+        }
+
+        @Test
+        public void testCreateEmployee_LowSalaryOver30() {
+            Employee input = new Employee();
+            input.setAge(35);
+            input.setSalary(15000);
+
+            assertThrows(InvalidEmployeeException.class, () -> {
+                employeeService.createEmployee(input);
+            });
+        }
+
+        @Test
+        public void testGetEmployee_NotFound() {
+            when(employeeRepository.findById(999)).thenReturn(Optional.empty());
+
+            assertThrows(EmployeeNotFoundException.class, () -> {
+                employeeService.getEmployee(999);
+            });
+        }
+
+        @Test
+        public void testUpdateEmployee_NotFound() {
+            when(employeeRepository.findById(100)).thenReturn(Optional.empty());
+
+            Employee input = new Employee();
+            input.setName("Update Test");
+
+            assertThrows(EmployeeNotFoundException.class, () -> {
+                employeeService.updateEmployee(100, input);
+            });
+        }
+
+        @Test
+        public void testUpdateEmployee_Inactive() {
+            Employee inactive = new Employee();
+            inactive.setId(1);
+            inactive.setActive(false);
+
+            when(employeeRepository.findById(1)).thenReturn(Optional.of(inactive));
+
+            Employee input = new Employee();
+            input.setName("Update Test");
+
+            assertThrows(EmployeeInactiveException.class, () -> {
+                employeeService.updateEmployee(1, input);
+            });
+        }
+
+
+        @Test
+        public void testGetEmployeeNotFound() {
+            when(employeeRepository.findById(99L)).thenReturn(Optional.empty());
+
+            EmployeeNotFoundException exception = assertThrows(EmployeeNotFoundException.class, () -> {
+                employeeService.getEmployee(99L);
+            });
+
+            assertEquals("Employee with ID 99 not found.", exception.getMessage());
+        }
+    }
+
 }
