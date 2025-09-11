@@ -111,6 +111,8 @@ public class EmployeeControllerTest {
         for (int i = 1; i <= 10; i++) {
             Employee employee = new Employee();
             employee.setName("Employee " + i);
+            employee.setSalary(i * 20000);
+            employee.setAge(i + 18);
             employee.setId(i);
 
             mockMvc.perform(post("/employees")
@@ -126,5 +128,4 @@ public class EmployeeControllerTest {
                 .andExpect(jsonPath("$.size").value(5))
                 .andExpect(jsonPath("$.employees.length()").value(5));
     }
-
 }

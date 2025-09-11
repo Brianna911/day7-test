@@ -147,7 +147,9 @@ import com.example.demo.exception.EmployeeInactiveException;
 import com.example.demo.exception.EmployeeNotFoundException;
 import com.example.demo.exception.InvalidEmployeeException;
 import com.example.demo.repository.EmployeeRepository;
+import com.example.demo.repository.EmployeeRepositoryInterface;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -156,16 +158,38 @@ import java.util.*;
 @Service
 public class EmployeeService {
 
-    private final EmployeeRepository employeeRepository;
+//    private final EmployeeRepository employeeRepository;
 
+//    public EmployeeService(EmployeeRepository employeeRepository) {
+//        this.employeeRepository = employeeRepository;
+//    }
+//point
+//    public Employee createEmployee(Employee employeeDTO) {
+//        if (employeeDTO.getAge() < 18 || employeeDTO.getAge() > 65) {
+//            throw new InvalidEmployeeException("Employee age must be between 18 and 65.");
+//        }
+//        if (employeeDTO.getAge() >= 30 && employeeDTO.getSalary() < 20000) {
+//            throw new InvalidEmployeeException("Employees over 30 must have salary >= 20000.");
+//        }
+//
+//        Employee employee = new Employee();
+//        BeanUtils.copyProperties(employeeDTO, employee, "id");
+//        employee.setId(employeeRepository.count() + 1);
+//        employeeRepository.save(employee);
+//        return employee;
+//    }
+
+    @Qualifier("employeeRepository") // 使用内存实现
+    private EmployeeRepositoryInterface employeeRepository;
     public EmployeeService(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
+    this.employeeRepository = employeeRepository;
     }
-
     public Employee createEmployee(Employee employeeDTO) {
         if (employeeDTO.getAge() < 18 || employeeDTO.getAge() > 65) {
+            // 抛出异常，但不保存
             throw new InvalidEmployeeException("Employee age must be between 18 and 65.");
         }
+
         if (employeeDTO.getAge() >= 30 && employeeDTO.getSalary() < 20000) {
             throw new InvalidEmployeeException("Employees over 30 must have salary >= 20000.");
         }

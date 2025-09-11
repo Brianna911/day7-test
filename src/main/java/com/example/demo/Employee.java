@@ -1,6 +1,14 @@
 package com.example.demo;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+@Entity
+@Table(name = "employees")
 public class Employee {
+    @Id
+    @GeneratedValue
     private String name;
     private int age;
     private double salary;

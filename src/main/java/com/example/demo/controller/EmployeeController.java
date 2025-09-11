@@ -1,6 +1,8 @@
 package com.example.demo.controller;
+import com.example.demo.repository.EmployeeRepositoryInterface;
 import com.example.demo.service.EmployeeService;
 import com.example.demo.Employee;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +11,9 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RestController
 @RequestMapping("/employees")
 public class EmployeeController {
+
+    @Qualifier("employeeRepository") // 使用内存实现
+    private EmployeeRepositoryInterface employeeRepository;
 
     private final EmployeeService employeeService;
 
@@ -19,7 +24,6 @@ public class EmployeeController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employeeDTO) {
-//        return employeeService.createEmployee(employeeDTO);
         Employee employee = employeeService.createEmployee(employeeDTO);
 
         return ResponseEntity.status(CREATED).body(employee);
@@ -67,5 +71,4 @@ public class EmployeeController {
                                                    @RequestBody Employee employeeDTO) {
         return employeeService.updateEmployee(id, employeeDTO);
     }
-
 }
