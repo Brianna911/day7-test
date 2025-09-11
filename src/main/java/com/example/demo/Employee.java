@@ -9,18 +9,30 @@ import jakarta.persistence.Table;
 public class Employee {
     @Id
     @GeneratedValue
-    private String name;
-    private int age;
-    private double salary;
     private int id;
+
+    private String name;
+
+    private int age;
+
+    private double salary;
+
     private String gender;
-    boolean active;
+
+
+    private int companyId; // 外键，用于关联 Company
+
+
+    boolean active;//不想改
+
     public Employee() {
         super();
     }
+
     public Employee(String name, int age, double salary, int id) {
         super();
     }
+
     public String getName() {
         return name;
     }
@@ -52,9 +64,11 @@ public class Employee {
     public void setId(int id) {
         this.id = id;
     }
+
     public String getGender() {
         return gender;
     }
+
     public void setGender(String gender) {
         this.gender = gender;
     }
@@ -64,5 +78,13 @@ public class Employee {
     }
 
     public void setActive(boolean b) {
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId){
+        this.companyId = companyId;
     }
 }

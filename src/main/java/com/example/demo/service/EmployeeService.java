@@ -143,6 +143,7 @@
 package com.example.demo.service;
 
 import com.example.demo.Employee;
+import com.example.demo.controller.dto.EmployeeRequest;
 import com.example.demo.exception.EmployeeInactiveException;
 import com.example.demo.exception.EmployeeNotFoundException;
 import com.example.demo.exception.InvalidEmployeeException;
@@ -222,7 +223,7 @@ public class EmployeeService {
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found."));
     }
 
-    public ResponseEntity<Employee> updateEmployee(long id, Employee employeeDTO) {
+    public ResponseEntity<Employee> updateEmployee(long id, EmployeeRequest employeeDTO) {
         Employee existing = employeeRepository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found."));
 

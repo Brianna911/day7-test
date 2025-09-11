@@ -1,4 +1,5 @@
 package com.example.demo.controller;
+import com.example.demo.controller.dto.EmployeeRequest;
 import com.example.demo.repository.EmployeeRepositoryInterface;
 import com.example.demo.service.EmployeeService;
 import com.example.demo.Employee;
@@ -68,7 +69,7 @@ public class EmployeeController {
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Employee> updateEmployee(@PathVariable long id,
-                                                   @RequestBody Employee employeeDTO) {
-        return employeeService.updateEmployee(id, employeeDTO);
+                                                   @RequestBody EmployeeRequest employeeRequest) {
+        return employeeService.updateEmployee(id, employeeRequest);
     }
 }

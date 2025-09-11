@@ -1,5 +1,6 @@
 package com.example.demo.service;
 import com.example.demo.Employee;
+import com.example.demo.controller.dto.EmployeeRequest;
 import com.example.demo.exception.EmployeeInactiveException;
 import com.example.demo.exception.EmployeeNotFoundException;
 import com.example.demo.exception.InvalidEmployeeException;
@@ -219,7 +220,7 @@ public void testGetEmployeesWithPagination() {
         public void testUpdateEmployee_NotFound() {
             when(employeeRepository.findById(100)).thenReturn(Optional.empty());
 
-            Employee input = new Employee();
+            EmployeeRequest input = new EmployeeRequest();
             input.setName("Update Test");
 
             assertThrows(EmployeeNotFoundException.class, () -> {
@@ -235,7 +236,7 @@ public void testGetEmployeesWithPagination() {
 
             when(employeeRepository.findById(1)).thenReturn(Optional.of(inactive));
 
-            Employee input = new Employee();
+            EmployeeRequest input = new EmployeeRequest();
             input.setName("Update Test");
 
             assertThrows(EmployeeInactiveException.class, () -> {
